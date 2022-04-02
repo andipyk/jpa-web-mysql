@@ -1,7 +1,10 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.TutorialDTO;
 import com.example.demo.model.Tutorial;
 import com.example.demo.repository.TutorialRepository;
+import com.example.demo.service.TutorialService;
+import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,37 +20,31 @@ import java.util.Optional;
 public class TutorialController {
     @Autowired
     TutorialRepository tutorialRepository;
+
+    @Autowired
+    TutorialService tutorialService;
+
     @GetMapping("/tutorials")
-    public ResponseEntity<List<Tutorial>> getAllTutorials(@RequestParam(required = false) String title) {
-        try {
-            List<Tutorial> tutorials = new ArrayList<Tutorial>();
-            if (title == null)
-                tutorials.addAll(tutorialRepository.findAll());
-            else
-                tutorials.addAll(tutorialRepository.findByTitleContaining(title));
-            if (tutorials.isEmpty()) {
-                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-            }
-            return new ResponseEntity<>(tutorials, HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    public ResponseEntity<List<TutorialDTO>> getAllTutorials(@RequestParam(required = false) String title) {
+             return ResponseEntity.ok(tutorialService.getTutorials());
     }
+
     @GetMapping("/tutorials/{id}")
-    public ResponseEntity<Tutorial> getTutorialById(@PathVariable("id") long id) {
-        Optional<Tutorial> tutorialData = tutorialRepository.findById(id);
-        return tutorialData.map(tutorial -> new ResponseEntity<>(tutorial, HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    public ResponseEntity<TutorialDTO> getTutorialById(@PathVariable("id") long id) throws NotFoundException {
+            return ResponseEntity.ok(tutorialService.getTutorialById(id));
     }
-    @PostMapping("/tutorials")
-    public ResponseEntity<Tutorial> createTutorial(@RequestBody Tutorial tutorial) {
-        try {
-            Tutorial _tutorial = tutorialRepository
-                    .save(new Tutorial(tutorial.getTitle(), tutorial.getDescription(), false));
-            return new ResponseEntity<>(_tutorial, HttpStatus.CREATED);
-        } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
+
+//    @PostMapping("/tutorials")
+//    public ResponseEntity<Tutorial> createTutorial(@RequestBody Tutorial tutorial) {
+//        try {
+//            Tutorial _tutorial = tutorialRepository
+//                    .save(new Tutorial(tutorial.getTitle(), tutorial.getDescription(), false));
+//            return new ResponseEntity<>(_tutorial, HttpStatus.CREATED);
+//        } catch (Exception e) {
+//            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
+
     @PutMapping("/tutorials/{id}")
     public ResponseEntity<Tutorial> updateTutorial(@PathVariable("id") long id, @RequestBody Tutorial tutorial) {
         Optional<Tutorial> tutorialData = tutorialRepository.findById(id);
