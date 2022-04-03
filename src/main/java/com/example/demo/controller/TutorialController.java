@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.TutorialDTO;
+import com.example.demo.dto.TutorialRequestDTO;
 import com.example.demo.model.Tutorial;
 import com.example.demo.repository.TutorialRepository;
 import com.example.demo.service.TutorialService;
@@ -10,7 +11,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,11 +18,13 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api")
 public class TutorialController {
-    @Autowired
-    TutorialRepository tutorialRepository;
+    private final TutorialRepository tutorialRepository;
+    private final TutorialService tutorialService;
 
-    @Autowired
-    TutorialService tutorialService;
+    public TutorialController(TutorialRepository tutorialRepository, TutorialService tutorialService) {
+        this.tutorialRepository = tutorialRepository;
+        this.tutorialService = tutorialService;
+    }
 
     @GetMapping("/tutorials")
     public ResponseEntity<List<TutorialDTO>> getAllTutorials(@RequestParam(required = false) String title) {
@@ -34,8 +36,11 @@ public class TutorialController {
             return ResponseEntity.ok(tutorialService.getTutorialById(id));
     }
 
-//    @PostMapping("/tutorials")
-//    public ResponseEntity<Tutorial> createTutorial(@RequestBody Tutorial tutorial) {
+    @PostMapping("/tutorials")
+    public ResponseEntity<Tutorial> createTutorial(@RequestBody TutorialDTO tutorial) {
+        return ResponseEntity.ok(tutorialService.createTutorial(tutorial));
+    }
+
 //        try {
 //            Tutorial _tutorial = tutorialRepository
 //                    .save(new Tutorial(tutorial.getTitle(), tutorial.getDescription(), false));

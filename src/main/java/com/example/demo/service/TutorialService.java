@@ -3,23 +3,20 @@ package com.example.demo.service;
 import com.example.demo.dto.TutorialDTO;
 import com.example.demo.model.Tutorial;
 import com.example.demo.repository.TutorialRepository;
-import com.fasterxml.jackson.databind.MapperFeature;
 import javassist.NotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 public class TutorialService {
-    @Autowired
-    private TutorialRepository tutorialRepository;
+    private final TutorialRepository tutorialRepository;
+
+    public TutorialService(TutorialRepository tutorialRepository) {
+        this.tutorialRepository = tutorialRepository;
+    }
 
 //    @Autowired
 //    private
@@ -56,6 +53,19 @@ public class TutorialService {
                 .build())
                 .orElseThrow(()->new NotFoundException("Tutorial Tidak Ditemukan"));
     }
+
+    public Tutorial createTutorial(TutorialDTO tutorialDTO) {
+        Tutorial newTutorial = new Tutorial(
+                        tutorialDTO.getId(),
+                        tutorialDTO.getTitle(),
+                        tutorialDTO.getDescription(),
+                        false
+        );
+
+        return tutorialRepository.save(newTutorial);
+
+    }
+
 
 
 
